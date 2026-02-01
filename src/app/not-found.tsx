@@ -1,5 +1,5 @@
 import Link from "next/link";
-import AlertTriangle from "lucide-react/dist/esm/icons/alert-triangle";
+import { AlertTriangle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { IconBadge } from "@/components/ui/icon-badge";
 

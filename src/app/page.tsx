@@ -1,9 +1,5 @@
 import Link from "next/link";
-import CheckCircle from "lucide-react/dist/esm/icons/check-circle-2";
-import Clock from "lucide-react/dist/esm/icons/clock";
-import FileCheck from "lucide-react/dist/esm/icons/file-check";
-import Sparkles from "lucide-react/dist/esm/icons/sparkles";
-import History from "lucide-react/dist/esm/icons/history";
+import { CheckCircle2 as CheckCircle, Clock, FileCheck, Sparkles, History } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { AppLogo } from "@/components/icons/app-logo";
 

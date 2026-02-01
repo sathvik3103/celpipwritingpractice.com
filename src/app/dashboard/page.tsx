@@ -4,15 +4,17 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
-import ClipboardCheck from "lucide-react/dist/esm/icons/clipboard-check";
-import Eye from "lucide-react/dist/esm/icons/eye";
-import FileQuestion from "lucide-react/dist/esm/icons/file-question";
-import Layers from "lucide-react/dist/esm/icons/layers";
-import ListChecks from "lucide-react/dist/esm/icons/list-checks";
-import Mail from "lucide-react/dist/esm/icons/mail";
-import Sparkles from "lucide-react/dist/esm/icons/sparkles";
-import TrendingDown from "lucide-react/dist/esm/icons/trending-down";
-import TrendingUp from "lucide-react/dist/esm/icons/trending-up";
+import {
+  ClipboardCheck,
+  Eye,
+  FileQuestion,
+  Layers,
+  ListChecks,
+  Mail,
+  Sparkles,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IconBadge } from "@/components/ui/icon-badge";

@@ -3,9 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import LayoutGrid from "lucide-react/dist/esm/icons/layout-grid";
-import PenTool from "lucide-react/dist/esm/icons/pen-tool";
-import ScrollText from "lucide-react/dist/esm/icons/scroll-text";
+import { LayoutGrid, PenTool, ScrollText } from "lucide-react";
 import { AppLogo } from "./icons/app-logo";
 
 export function AppHeader() {

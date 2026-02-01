@@ -1,11 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Eye from "lucide-react/dist/esm/icons/eye";
-import Layers from "lucide-react/dist/esm/icons/layers";
-import ListChecks from "lucide-react/dist/esm/icons/list-checks";
-import Sparkles from "lucide-react/dist/esm/icons/sparkles";
-import Trophy from "lucide-react/dist/esm/icons/trophy";
+import { Eye, Layers, ListChecks, Sparkles, Trophy } from "lucide-react";
 import { parseEvaluationRaw } from "@/lib/evaluation";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

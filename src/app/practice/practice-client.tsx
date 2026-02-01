@@ -3,15 +3,17 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect, useCallback, useRef } from "react";
-import Clock from "lucide-react/dist/esm/icons/clock";
-import ClipboardList from "lucide-react/dist/esm/icons/clipboard-list";
-import HelpCircle from "lucide-react/dist/esm/icons/help-circle";
-import ChevronDown from "lucide-react/dist/esm/icons/chevron-down";
-import ChevronUp from "lucide-react/dist/esm/icons/chevron-up";
-import MessageSquareText from "lucide-react/dist/esm/icons/message-square-text";
-import Pause from "lucide-react/dist/esm/icons/pause";
-import Play from "lucide-react/dist/esm/icons/play";
-import Sparkles from "lucide-react/dist/esm/icons/sparkles";
+import {
+  Clock,
+  ClipboardList,
+  HelpCircle,
+  ChevronDown,
+  ChevronUp,
+  MessageSquareText,
+  Pause,
+  Play,
+  Sparkles,
+} from "lucide-react";
 import { EvaluationCards } from "@/components/evaluation/evaluation-cards";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
