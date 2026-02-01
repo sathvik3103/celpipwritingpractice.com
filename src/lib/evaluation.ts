@@ -36,7 +36,7 @@ function appendValue<T extends Record<string, string | undefined>>(
   value: string
 ) {
   if (!value) return;
-  target[key] = target[key] ? `${target[key]}\n${value}` : value;
+  (target as Record<string, string | undefined>)[key as string] = target[key] ? `${target[key]}\n${value}` : value;
 }
 
 export function parseEvaluationRaw(raw: string): EvaluationParseResult | null {
