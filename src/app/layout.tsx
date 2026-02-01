@@ -14,6 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://celpipwritingpractice.com"),
   title: {
     default: "CELPIP Writing Practice | Practice CELPIP Writing with AI Evaluation",
     template: "%s | CELPIP Writing Practice",
@@ -23,8 +24,16 @@ export const metadata: Metadata = {
   keywords: ["CELPIP", "writing", "practice", "English", "exam", "evaluation", "Task 1", "Task 2"],
   openGraph: {
     title: "CELPIP Writing Practice",
-    description: "Practice CELPIP writing tasks with AI evaluation. Timer, example questions, and progress tracking.",
+    description: "Free AI-powered CELPIP writing practice with instant feedback. Timer, 20 practice questions, and progress tracking.",
     type: "website",
+    siteName: "CELPIP Writing Practice",
+    locale: "en_US",
+    url: "https://celpipwritingpractice.com",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CELPIP Writing Practice",
+    description: "Free AI-powered CELPIP writing practice with instant feedback.",
   },
   robots: { index: true, follow: true },
 };
