@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
-import { prisma } from "@/lib/prisma";
+import { prisma, withRetry } from "@/lib/prisma";
 import { z } from "zod";
 
 const signupSchema = z.object({
@@ -20,7 +20,12 @@ export async function POST(req: Request) {
       );
     }
     const { email, password, name } = parsed.data;
-    const existing = await prisma.user.findUnique({ where: { email } });
+    
+    // Use retry logic to handle Railway database cold starts
+    const existing = await withRetry(() =>
+      prisma.user.findUnique({ where: { email } })
+    );
+    
     if (existing) {
       return NextResponse.json(
         { error: "An account with this email already exists." },
@@ -28,9 +33,13 @@ export async function POST(req: Request) {
       );
     }
     const passwordHash = await hash(password, 12);
-    await prisma.user.create({
-      data: { email, name: name ?? null, passwordHash },
-    });
+    
+    await withRetry(() =>
+      prisma.user.create({
+        data: { email, name: name ?? null, passwordHash },
+      })
+    );
+    
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("Signup error:", e);

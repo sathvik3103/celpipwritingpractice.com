@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma, withRetry } from "@/lib/prisma";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -7,10 +7,15 @@ export async function GET(req: Request) {
   if (!taskType || (taskType !== "1" && taskType !== "2")) {
     return NextResponse.json({ error: "taskType must be 1 or 2" }, { status: 400 });
   }
-  const questions = await prisma.exampleQuestion.findMany({
-    where: { taskType: parseInt(taskType, 10) },
-    orderBy: { sortOrder: "asc" },
-    select: { id: true, title: true, body: true, sortOrder: true },
-  });
+  
+  // Use retry logic to handle Railway database cold starts
+  const questions = await withRetry(() =>
+    prisma.exampleQuestion.findMany({
+      where: { taskType: parseInt(taskType, 10) },
+      orderBy: { sortOrder: "asc" },
+      select: { id: true, title: true, body: true, sortOrder: true },
+    })
+  );
+  
   return NextResponse.json(questions);
 }

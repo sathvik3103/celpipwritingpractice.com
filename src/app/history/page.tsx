@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { prisma, withRetry } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
 import { HistoryFilters } from "./history-filters";
 
@@ -52,17 +52,20 @@ export default async function HistoryPage({
     orderBy = { createdAt: "desc" };
   }
 
-  const sessions = await prisma.practiceSession.findMany({
-    where,
-    orderBy,
-    select: {
-      id: true,
-      taskType: true,
-      questionText: true,
-      scoreOverall: true,
-      createdAt: true,
-    },
-  });
+  // Use retry logic to handle Railway database cold starts
+  const sessions = await withRetry(() =>
+    prisma.practiceSession.findMany({
+      where,
+      orderBy,
+      select: {
+        id: true,
+        taskType: true,
+        questionText: true,
+        scoreOverall: true,
+        createdAt: true,
+      },
+    })
+  );
 
   // Handle null scores for proper sorting (nulls should go to end)
   // Prisma doesn't handle nulls in orderBy the way we want, so we'll sort in memory

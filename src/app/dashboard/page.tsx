@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { prisma, withRetry } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
 import {
   ClipboardCheck,
@@ -24,51 +24,55 @@ export default async function DashboardPage() {
   if (!session?.user?.id) redirect("/login");
 
   const userId = session.user.id;
-  const [recentSessions, kpisOverall, kpisContent, kpisVocab, kpisReadability, kpisTask] = await Promise.all([
-    prisma.practiceSession.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-      select: {
-        id: true,
-        taskType: true,
-        scoreOverall: true,
-        questionText: true,
-        createdAt: true,
-      },
-    }),
-    prisma.practiceSession.aggregate({
-      where: { userId },
-      _avg: { scoreOverall: true },
-      _min: { scoreOverall: true },
-      _max: { scoreOverall: true },
-      _count: true,
-    }),
-    prisma.practiceSession.aggregate({
-      where: { userId, scoreContent: { not: null } },
-      _avg: { scoreContent: true },
-      _min: { scoreContent: true },
-      _max: { scoreContent: true },
-    }),
-    prisma.practiceSession.aggregate({
-      where: { userId, scoreVocabulary: { not: null } },
-      _avg: { scoreVocabulary: true },
-      _min: { scoreVocabulary: true },
-      _max: { scoreVocabulary: true },
-    }),
-    prisma.practiceSession.aggregate({
-      where: { userId, scoreReadability: { not: null } },
-      _avg: { scoreReadability: true },
-      _min: { scoreReadability: true },
-      _max: { scoreReadability: true },
-    }),
-    prisma.practiceSession.aggregate({
-      where: { userId, scoreTaskFulfillment: { not: null } },
-      _avg: { scoreTaskFulfillment: true },
-      _min: { scoreTaskFulfillment: true },
-      _max: { scoreTaskFulfillment: true },
-    }),
-  ]);
+  
+  // Use retry logic to handle Railway database cold starts
+  const [recentSessions, kpisOverall, kpisContent, kpisVocab, kpisReadability, kpisTask] = await withRetry(() =>
+    Promise.all([
+      prisma.practiceSession.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        select: {
+          id: true,
+          taskType: true,
+          scoreOverall: true,
+          questionText: true,
+          createdAt: true,
+        },
+      }),
+      prisma.practiceSession.aggregate({
+        where: { userId },
+        _avg: { scoreOverall: true },
+        _min: { scoreOverall: true },
+        _max: { scoreOverall: true },
+        _count: true,
+      }),
+      prisma.practiceSession.aggregate({
+        where: { userId, scoreContent: { not: null } },
+        _avg: { scoreContent: true },
+        _min: { scoreContent: true },
+        _max: { scoreContent: true },
+      }),
+      prisma.practiceSession.aggregate({
+        where: { userId, scoreVocabulary: { not: null } },
+        _avg: { scoreVocabulary: true },
+        _min: { scoreVocabulary: true },
+        _max: { scoreVocabulary: true },
+      }),
+      prisma.practiceSession.aggregate({
+        where: { userId, scoreReadability: { not: null } },
+        _avg: { scoreReadability: true },
+        _min: { scoreReadability: true },
+        _max: { scoreReadability: true },
+      }),
+      prisma.practiceSession.aggregate({
+        where: { userId, scoreTaskFulfillment: { not: null } },
+        _avg: { scoreTaskFulfillment: true },
+        _min: { scoreTaskFulfillment: true },
+        _max: { scoreTaskFulfillment: true },
+      }),
+    ])
+  );
 
   const hasSessions = (kpisOverall._count ?? 0) > 0;
   const avg = kpisOverall._avg?.scoreOverall != null ? Math.round(kpisOverall._avg.scoreOverall) : null;

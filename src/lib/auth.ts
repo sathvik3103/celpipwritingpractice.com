@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { compare } from "bcryptjs";
-import { prisma } from "./prisma";
+import { prisma, withRetry } from "./prisma";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -20,9 +20,14 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        });
+        
+        // Use retry logic to handle Railway database cold starts
+        const user = await withRetry(() =>
+          prisma.user.findUnique({
+            where: { email: credentials.email },
+          })
+        );
+        
         if (!user?.passwordHash) return null;
         const ok = await compare(credentials.password, user.passwordHash);
         if (!ok) return null;

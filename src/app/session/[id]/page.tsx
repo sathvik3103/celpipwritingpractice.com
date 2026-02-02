@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { prisma, withRetry } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
 import { CheckCircle2 as CheckCircle, HelpCircle, MessageSquareText } from "lucide-react";
 import { EvaluationCards } from "@/components/evaluation/evaluation-cards";
@@ -19,9 +19,13 @@ export default async function SessionDetailPage({
   if (!session?.user?.id) redirect("/login");
 
   const { id } = await params;
-  const practiceSession = await prisma.practiceSession.findFirst({
-    where: { id, userId: session.user.id },
-  });
+  
+  // Use retry logic to handle Railway database cold starts
+  const practiceSession = await withRetry(() =>
+    prisma.practiceSession.findFirst({
+      where: { id, userId: session.user.id },
+    })
+  );
 
   if (!practiceSession) notFound();
 

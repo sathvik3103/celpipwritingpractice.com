@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { prisma, withRetry } from "@/lib/prisma";
 import { evaluateWithGroq, parseScoresFromEvaluation } from "@/lib/evaluate";
 import { z } from "zod";
 
@@ -47,22 +47,25 @@ export async function POST(req: Request) {
 
   const parsed = parseScoresFromEvaluation(evaluationRaw);
 
-  const sessionRecord = await prisma.practiceSession.create({
-    data: {
-      userId: session.user.id,
-      taskType: body.taskType,
-      questionText: body.questionText,
-      exampleQuestionId: body.exampleQuestionId ?? null,
-      answerText: body.answerText,
-      evaluationRaw,
-      scoreOverall: parsed.scoreOverall,
-      scoreContent: parsed.scoreContent,
-      scoreVocabulary: parsed.scoreVocabulary,
-      scoreReadability: parsed.scoreReadability,
-      scoreTaskFulfillment: parsed.scoreTaskFulfillment,
-      timeRemainingSeconds: body.timeRemainingSeconds ?? null,
-    },
-  });
+  // Use retry logic to handle Railway database cold starts
+  const sessionRecord = await withRetry(() =>
+    prisma.practiceSession.create({
+      data: {
+        userId: session.user.id,
+        taskType: body.taskType,
+        questionText: body.questionText,
+        exampleQuestionId: body.exampleQuestionId ?? null,
+        answerText: body.answerText,
+        evaluationRaw,
+        scoreOverall: parsed.scoreOverall,
+        scoreContent: parsed.scoreContent,
+        scoreVocabulary: parsed.scoreVocabulary,
+        scoreReadability: parsed.scoreReadability,
+        scoreTaskFulfillment: parsed.scoreTaskFulfillment,
+        timeRemainingSeconds: body.timeRemainingSeconds ?? null,
+      },
+    })
+  );
 
   return NextResponse.json({
     id: sessionRecord.id,
