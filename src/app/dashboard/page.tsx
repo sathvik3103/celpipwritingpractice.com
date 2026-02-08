@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma, withRetry } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
+import { LocalDateTime } from "@/components/ui/local-datetime";
 import {
   ClipboardCheck,
   Eye,
@@ -275,7 +276,14 @@ export default async function DashboardPage() {
                       </span>
                     </div>
                     <p className="text-xs text-neutral-500 mt-2">
-                      {new Date(s.createdAt).toLocaleDateString()} {new Date(s.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      <LocalDateTime
+                        value={new Date(s.createdAt).toISOString()}
+                        options={{ year: "numeric", month: "numeric", day: "numeric" }}
+                      />{" "}
+                      <LocalDateTime
+                        value={new Date(s.createdAt).toISOString()}
+                        options={{ hour: "2-digit", minute: "2-digit" }}
+                      />
                     </p>
                   </Link>
                 </li>

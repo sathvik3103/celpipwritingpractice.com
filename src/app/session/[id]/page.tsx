@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma, withRetry } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
+import { LocalDateTime } from "@/components/ui/local-datetime";
 import { CheckCircle2 as CheckCircle, HelpCircle, MessageSquareText } from "lucide-react";
 import { EvaluationCards } from "@/components/evaluation/evaluation-cards";
 import { Badge } from "@/components/ui/badge";
@@ -53,13 +54,16 @@ export default async function SessionDetailPage({
 
         <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
           Task {practiceSession.taskType} ·{" "}
-          {practiceSession.createdAt.toLocaleDateString()}{" "}
-          {practiceSession.createdAt.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+          <LocalDateTime
+            value={practiceSession.createdAt.toISOString()}
+            options={{ year: "numeric", month: "numeric", day: "numeric" }}
+          />{" "}
+          <LocalDateTime
+            value={practiceSession.createdAt.toISOString()}
+            options={{ hour: "2-digit", minute: "2-digit" }}
+          />
           {practiceSession.timeTakenSeconds != null
-            ? ` · Time ${formatTime(practiceSession.timeTakenSeconds)}`
+            ? ` · Time taken ${formatTime(practiceSession.timeTakenSeconds)}`
             : ""}
         </p>
 

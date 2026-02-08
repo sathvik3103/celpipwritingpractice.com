@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma, withRetry } from "@/lib/prisma";
 import { AppHeader } from "@/components/app-header";
+import { LocalDateTime } from "@/components/ui/local-datetime";
 import { HistoryFilters } from "./history-filters";
 
 export default async function HistoryPage({
@@ -133,9 +134,17 @@ export default async function HistoryPage({
                     </span>
                   </div>
                   <p className="text-xs text-neutral-500 mt-2">
-                    {s.createdAt.toLocaleDateString()}{" "}
-                    {s.createdAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                    {s.timeTakenSeconds != null ? ` · Time ${formatTime(s.timeTakenSeconds)}` : ""}
+                    <LocalDateTime
+                      value={s.createdAt.toISOString()}
+                      options={{ year: "numeric", month: "numeric", day: "numeric" }}
+                    />{" "}
+                    <LocalDateTime
+                      value={s.createdAt.toISOString()}
+                      options={{ hour: "2-digit", minute: "2-digit" }}
+                    />
+                    {s.timeTakenSeconds != null
+                      ? ` · Time taken ${formatTime(s.timeTakenSeconds)}`
+                      : ""}
                   </p>
                 </Link>
               </li>

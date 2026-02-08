@@ -83,7 +83,7 @@ export function EvaluationCards({ evaluationRaw, scores, timeTakenSeconds }: Eva
               {scores.readability != null && <Badge tone="neutral">Readability {scores.readability}</Badge>}
               {scores.taskFulfillment != null && <Badge tone="neutral">Task Fulfillment {scores.taskFulfillment}</Badge>}
               {timeTakenSeconds != null && (
-                <Badge tone="neutral">Time {formatTime(timeTakenSeconds)}</Badge>
+                <Badge tone="neutral">Time taken {formatTime(timeTakenSeconds)}</Badge>
               )}
             </div>
           </CardHeader>
