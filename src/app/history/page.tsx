@@ -11,6 +11,11 @@ export default async function HistoryPage({
 }: {
   searchParams: Promise<{ task?: string; from?: string; to?: string; sort?: string }>;
 }) {
+  const formatTime = (totalSeconds: number) => {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  };
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
 
@@ -63,6 +68,7 @@ export default async function HistoryPage({
         questionText: true,
         scoreOverall: true,
         createdAt: true,
+        timeTakenSeconds: true,
       },
     })
   );
@@ -129,6 +135,7 @@ export default async function HistoryPage({
                   <p className="text-xs text-neutral-500 mt-2">
                     {s.createdAt.toLocaleDateString()}{" "}
                     {s.createdAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    {s.timeTakenSeconds != null ? ` · Time ${formatTime(s.timeTakenSeconds)}` : ""}
                   </p>
                 </Link>
               </li>

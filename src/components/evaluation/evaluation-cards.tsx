@@ -18,6 +18,7 @@ type Scores = {
 type EvaluationCardsProps = {
   evaluationRaw: string;
   scores?: Scores;
+  timeTakenSeconds?: number | null;
 };
 
 const categoryIcons: Record<string, ReactNode> = {
@@ -41,7 +42,13 @@ function SectionBlock({ title, value }: { title: string; value?: string }) {
   );
 }
 
-export function EvaluationCards({ evaluationRaw, scores }: EvaluationCardsProps) {
+function formatTime(totalSeconds: number) {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+}
+
+export function EvaluationCards({ evaluationRaw, scores, timeTakenSeconds }: EvaluationCardsProps) {
   const parsed = parseEvaluationRaw(evaluationRaw);
 
   if (!parsed) {
@@ -75,6 +82,9 @@ export function EvaluationCards({ evaluationRaw, scores }: EvaluationCardsProps)
               {scores.vocabulary != null && <Badge tone="neutral">Vocabulary {scores.vocabulary}</Badge>}
               {scores.readability != null && <Badge tone="neutral">Readability {scores.readability}</Badge>}
               {scores.taskFulfillment != null && <Badge tone="neutral">Task Fulfillment {scores.taskFulfillment}</Badge>}
+              {timeTakenSeconds != null && (
+                <Badge tone="neutral">Time {formatTime(timeTakenSeconds)}</Badge>
+              )}
             </div>
           </CardHeader>
         </Card>

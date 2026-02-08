@@ -11,6 +11,7 @@ const bodySchema = z.object({
   answerText: z.string().min(1),
   exampleQuestionId: z.string().optional(),
   timeRemainingSeconds: z.number().int().min(0).optional(),
+  timeTakenSeconds: z.number().int().min(0).optional(),
 });
 
 export async function POST(req: Request) {
@@ -63,6 +64,7 @@ export async function POST(req: Request) {
         scoreReadability: parsed.scoreReadability,
         scoreTaskFulfillment: parsed.scoreTaskFulfillment,
         timeRemainingSeconds: body.timeRemainingSeconds ?? null,
+        timeTakenSeconds: body.timeTakenSeconds ?? null,
       },
     })
   );
@@ -70,6 +72,7 @@ export async function POST(req: Request) {
   return NextResponse.json({
     id: sessionRecord.id,
     evaluationRaw,
+    timeTakenSeconds: sessionRecord.timeTakenSeconds,
     scores: {
       overall: parsed.scoreOverall,
       content: parsed.scoreContent,

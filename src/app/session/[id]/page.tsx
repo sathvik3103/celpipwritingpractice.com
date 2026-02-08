@@ -15,6 +15,11 @@ export default async function SessionDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const formatTime = (totalSeconds: number) => {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  };
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
 
@@ -53,6 +58,9 @@ export default async function SessionDetailPage({
             hour: "2-digit",
             minute: "2-digit",
           })}
+          {practiceSession.timeTakenSeconds != null
+            ? ` · Time ${formatTime(practiceSession.timeTakenSeconds)}`
+            : ""}
         </p>
 
         <section className="mb-6 space-y-4">
@@ -93,6 +101,7 @@ export default async function SessionDetailPage({
           </div>
           <EvaluationCards
             evaluationRaw={practiceSession.evaluationRaw}
+            timeTakenSeconds={practiceSession.timeTakenSeconds}
             scores={{
               overall: practiceSession.scoreOverall,
               content: practiceSession.scoreContent,

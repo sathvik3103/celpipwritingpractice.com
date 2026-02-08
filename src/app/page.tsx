@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CheckCircle2 as CheckCircle, Clock, FileCheck, Sparkles, History } from "lucide-react";
+import { Clock, FileCheck, Sparkles, History } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { AppLogo } from "@/components/icons/app-logo";
 

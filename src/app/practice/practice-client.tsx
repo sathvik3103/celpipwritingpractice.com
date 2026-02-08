@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
@@ -30,7 +29,6 @@ export function PracticeClient({
   initialTaskType: number;
   initialExampleQuestions: ExampleQuestion[];
 }) {
-  const router = useRouter();
   const evaluationSectionRef = useRef<HTMLDivElement | null>(null);
   const [taskType, setTaskType] = useState(initialTaskType);
   const [exampleQuestions, setExampleQuestions] = useState(initialExampleQuestions);
@@ -42,12 +40,14 @@ export function PracticeClient({
   const [questionCollapsed, setQuestionCollapsed] = useState(false);
   const [timerActive, setTimerActive] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(TIMER_SECONDS);
+  const [timerStarted, setTimerStarted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [evaluationCollapsed, setEvaluationCollapsed] = useState(false);
   const [result, setResult] = useState<{
     id: string;
     evaluationRaw: string;
+    timeTakenSeconds?: number | null;
     scores: {
       overall: number | null;
       content: number | null;
@@ -84,6 +84,9 @@ export function PracticeClient({
       prevTaskTypeRef.current = taskType;
       setResult(null);
       setAnswer("");
+      setTimerActive(false);
+      setTimerStarted(false);
+      setTimeRemaining(TIMER_SECONDS);
     }
   }, [taskType, initialTaskType, initialExampleQuestions]);
 
@@ -118,7 +121,8 @@ export function PracticeClient({
           questionText,
           answerText: answer,
           exampleQuestionId: selectedQuestionId === "custom" ? undefined : selectedQuestionId,
-          timeRemainingSeconds: timerActive ? timeRemaining : undefined,
+          timeRemainingSeconds: timerStarted ? timeRemaining : undefined,
+          timeTakenSeconds: timerStarted ? TIMER_SECONDS - timeRemaining : undefined,
         }),
       });
       const data = await res.json();
@@ -134,7 +138,7 @@ export function PracticeClient({
     } finally {
       setLoading(false);
     }
-  }, [questionText, answer, taskType, selectedQuestionId, timerActive, timeRemaining, router]);
+  }, [questionText, answer, taskType, selectedQuestionId, timerStarted, timeRemaining]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -198,13 +202,16 @@ export function PracticeClient({
                 <button
                   type="button"
                   onClick={() => {
+                    if (!timerStarted || timeRemaining === 0) {
+                      setTimeRemaining(TIMER_SECONDS);
+                      setTimerStarted(true);
+                    }
                     setTimerActive(true);
-                    setTimeRemaining(TIMER_SECONDS);
                   }}
                   className={`${primaryButton} px-3 py-2 text-xs`}
                 >
                   <Play className="h-3.5 w-3.5" />
-                  Start
+                  {timerStarted && timeRemaining > 0 ? "Resume" : "Start"}
                 </button>
               ) : (
                 <button
@@ -348,6 +355,7 @@ export function PracticeClient({
           {!evaluationCollapsed && (
             <EvaluationCards
               evaluationRaw={result.evaluationRaw}
+              timeTakenSeconds={result.timeTakenSeconds ?? null}
               scores={{
                 overall: result.scores.overall,
                 content: result.scores.content,

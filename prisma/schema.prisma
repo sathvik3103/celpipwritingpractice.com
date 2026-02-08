@@ -85,6 +85,7 @@ model PracticeSession {
   scoreReadability      Int?
   scoreTaskFulfillment  Int?
   timeRemainingSeconds  Int?
+  timeTakenSeconds      Int?
   createdAt             DateTime @default(now())
 
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
