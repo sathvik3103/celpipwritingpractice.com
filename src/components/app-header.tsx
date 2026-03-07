@@ -13,8 +13,8 @@ export function AppHeader() {
     <header className="border-b border-[var(--border)] bg-[var(--surface)]">
       <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Link href="/dashboard" className="flex items-center gap-3 text-lg font-semibold tracking-tight">
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-blue-700 dark:text-blue-200">
-            <AppLogo className="h-5 w-5" />
+          <span className="inline-flex h-9 w-9 items-center justify-center">
+            <AppLogo className="h-6 w-6" />
           </span>
           CELPIP Writing Practice
         </Link>

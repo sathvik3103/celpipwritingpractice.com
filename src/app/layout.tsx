@@ -13,18 +13,20 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteDescription =
+  "Free CELPIP writing practice for Email and Survey tasks with AI feedback, timer, and progress tracking.";
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://celpipwritingpractice.com"),
   title: {
-    default: "CELPIP Writing Practice | Practice CELPIP Writing with AI Evaluation",
+    default: "CELPIP Writing Practice",
     template: "%s | CELPIP Writing Practice",
   },
-  description:
-    "Practice CELPIP writing tasks (Email and Survey Response) with AI evaluation. Timer, 10 example questions per task, and progress tracking. Best, worst, and average scores.",
+  description: siteDescription,
   keywords: ["CELPIP", "writing", "practice", "English", "exam", "evaluation", "Task 1", "Task 2"],
   openGraph: {
     title: "CELPIP Writing Practice",
-    description: "Free AI-powered CELPIP writing practice with instant feedback. Timer, 20 practice questions, and progress tracking.",
+    description: siteDescription,
     type: "website",
     siteName: "CELPIP Writing Practice",
     locale: "en_US",
@@ -33,7 +35,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "CELPIP Writing Practice",
-    description: "Free AI-powered CELPIP writing practice with instant feedback.",
+    description: siteDescription,
   },
   robots: { index: true, follow: true },
 };
