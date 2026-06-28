@@ -26,7 +26,7 @@ export default async function SessionDetailPage({
 
   const { id } = await params;
   
-  // Use retry logic to handle Railway database cold starts
+  // Retry transient serverless database connection failures.
   const practiceSession = await withRetry(() =>
     prisma.practiceSession.findFirst({
       where: { id, userId: session.user.id },

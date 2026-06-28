@@ -5,45 +5,54 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { compare } from "bcryptjs";
 import { prisma, withRetry } from "./prisma";
 
+const providers: NextAuthOptions["providers"] = [
+  CredentialsProvider({
+    name: "credentials",
+    credentials: {
+      email: { label: "Email", type: "email" },
+      password: { label: "Password", type: "password" },
+    },
+    async authorize(credentials) {
+      if (!credentials?.email || !credentials?.password) return null;
+
+      const user = await withRetry(() =>
+        prisma.user.findUnique({
+          where: { email: credentials.email },
+        })
+      );
+
+      if (!user?.passwordHash) return null;
+      const ok = await compare(credentials.password, user.passwordHash);
+      if (!ok) return null;
+      return {
+        id: user.id,
+        email: user.email ?? undefined,
+        name: user.name ?? undefined,
+        image: user.image ?? undefined,
+      };
+    },
+  }),
+];
+
+const googleClientId = process.env.GOOGLE_CLIENT_ID;
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+
+if (googleClientId && googleClientSecret) {
+  providers.push(
+    GoogleProvider({
+      clientId: googleClientId,
+      clientSecret: googleClientSecret,
+    })
+  );
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 },
   pages: {
     signIn: "/login",
   },
-  providers: [
-    CredentialsProvider({
-      name: "credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
-        
-        // Use retry logic to handle Railway database cold starts
-        const user = await withRetry(() =>
-          prisma.user.findUnique({
-            where: { email: credentials.email },
-          })
-        );
-        
-        if (!user?.passwordHash) return null;
-        const ok = await compare(credentials.password, user.passwordHash);
-        if (!ok) return null;
-        return {
-          id: user.id,
-          email: user.email ?? undefined,
-          name: user.name ?? undefined,
-          image: user.image ?? undefined,
-        };
-      },
-    }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
-    }),
-  ],
+  providers,
   callbacks: {
     async jwt({ token, user }) {
       if (user) token.id = user.id;

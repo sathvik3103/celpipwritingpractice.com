@@ -16,7 +16,7 @@ export default async function PracticePage({
   const { task } = await searchParams;
   const taskType = task === "2" ? 2 : 1;
 
-  // Use retry logic to handle Railway database cold starts
+  // Retry transient serverless database connection failures.
   const exampleQuestions = await withRetry(() =>
     prisma.exampleQuestion.findMany({
       where: { taskType },

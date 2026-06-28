@@ -11,9 +11,8 @@ export const prisma =
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 /**
- * Execute a database operation with automatic retry logic.
- * This handles Railway database cold starts where the first connection
- * may fail while the database is waking up from sleep.
+ * Execute a database operation with automatic retry logic for transient
+ * connection failures, including serverless database cold starts.
  * 
  * @param operation - The database operation to execute
  * @param maxRetries - Maximum number of retry attempts (default: 3)

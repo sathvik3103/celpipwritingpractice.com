@@ -8,7 +8,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "taskType must be 1 or 2" }, { status: 400 });
   }
   
-  // Use retry logic to handle Railway database cold starts
+  // Retry transient serverless database connection failures.
   const questions = await withRetry(() =>
     prisma.exampleQuestion.findMany({
       where: { taskType: parseInt(taskType, 10) },

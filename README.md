@@ -1,91 +1,70 @@
 # CELPIP Writing Practice
 
-A web app to help users practice for the CELPIP writing section. Built with Next.js, Tailwind, NextAuth (email + Google), Prisma/PostgreSQL, and Groq (LLaMA 3.3 70B) for AI evaluation.
+A Next.js app for practising the CELPIP writing section. It supports timed Task 1 and Task 2 responses, AI evaluation against the CELPIP rubric, score history, and progress dashboards.
 
-**Domain:** [celpipwritingpractice.com](https://celpipwritingpractice.com)
+**Production domain:** [celpipwritingpractice.com](https://celpipwritingpractice.com)
 
-## Features
+## Stack
 
-- **Authentication:** Sign up / log in with email and password, or one-click Google sign-in.
-- **Practice:** Task 1 (Email) and Task 2 (Survey Response) with 10 example questions each plus custom prompts.
-- **Timer:** 26-minute countdown for realistic test conditions.
-- **Evaluation:** AI evaluation aligned to the official CELPIP rubric (Content/Coherence, Vocabulary, Readability, Task Fulfillment), scores 0–12.
-- **History:** All sessions saved; list with filters (task type, date range); session detail view.
-- **KPIs:** Best, worst, and average scores (overall and per category) on the dashboard.
+- Next.js 16, React 19, and Tailwind CSS 4
+- NextAuth.js with credentials and optional Google OAuth
+- Prisma ORM with PostgreSQL
+- Groq API using `openai/gpt-oss-20b`
+- Vercel for the application and Neon for serverless PostgreSQL
 
-## Tech stack
+## Local setup
 
-- **Frontend:** Next.js 16 (App Router), React 19, Tailwind CSS 4
-- **Auth:** NextAuth.js (Credentials + Google OAuth), JWT sessions
-- **DB:** PostgreSQL (Prisma)
-- **AI:** Groq API (LLaMA 3.3 70B Versatile)
-
-## Setup
-
-### Prerequisites
-
-- Node.js 18+
-- PostgreSQL (local or e.g. Railway)
-- [Groq API key](https://console.groq.com/)
-- (Optional) Google OAuth client ID and secret for “Sign in with Google”
-
-### 1. Install dependencies
+Requirements: Node.js 20.9 or newer, npm, PostgreSQL, and a Groq API key.
 
 ```bash
 npm install
-```
-
-### 2. Environment variables
-
-Copy `.env.example` to `.env` and set:
-
-```env
-DATABASE_URL="postgresql://user:password@host:5432/dbname"
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-long-random-secret"
-GOOGLE_CLIENT_ID=""
-GOOGLE_CLIENT_SECRET=""
-GROQ_API_KEY="your-groq-api-key"
-```
-
-- `DATABASE_URL`: PostgreSQL connection string (e.g. from Railway).
-- `NEXTAUTH_SECRET`: Generate with `openssl rand -base64 32`.
-- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`: From [Google Cloud Console](https://console.cloud.google.com/) (APIs & Services → Credentials). Redirect URI: `{NEXTAUTH_URL}/api/auth/callback/google`.
-- `GROQ_API_KEY`: Required for evaluation.
-
-### 3. Database
-
-```bash
-npx prisma generate
-npx prisma db push
+cp .env.example .env
+npm run db:migrate
 npm run db:seed
-```
-
-`db:seed` populates 10 example questions for Task 1 and 10 for Task 2.
-
-### 4. Run
-
-```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+For local PostgreSQL, `DATABASE_URL` and `DATABASE_URL_UNPOOLED` may contain the same connection string. The seed command is intended for a new local or preview database; it deletes and recreates example questions and must not be run against migrated production data.
 
-## Deploy (Railway)
+## Environment variables
 
-1. Create a new project on [Railway](https://railway.app/).
-2. Add a PostgreSQL service and note `DATABASE_URL`.
-3. Add a new service from your repo (or connect GitHub).
-4. Set env vars: `DATABASE_URL`, `NEXTAUTH_URL` (e.g. `https://celpipwritingpractice.com`), `NEXTAUTH_SECRET`, `GROQ_API_KEY`, and optionally `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
-5. Build command: `npm run build`. Start command: `npm start`.
-6. Run migrations and seed once (e.g. via Railway shell or a one-off job):
-   - `npx prisma db push`
-   - `npm run db:seed`
-7. Point your domain (celpipwritingpractice.com) to the Railway service.
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `DATABASE_URL` | Yes | Pooled PostgreSQL URL used by the application runtime |
+| `DATABASE_URL_UNPOOLED` | Yes | Direct PostgreSQL URL used by Prisma migrations and admin tools |
+| `NEXTAUTH_URL` | Production | Canonical URL, `https://celpipwritingpractice.com` |
+| `NEXTAUTH_SECRET` | Yes | Long random secret used to sign authentication tokens |
+| `GROQ_API_KEY` | Yes | Groq API key for writing evaluation |
+| `GOOGLE_CLIENT_ID` | No | Enables Google sign-in when paired with `GOOGLE_CLIENT_SECRET` |
+| `GOOGLE_CLIENT_SECRET` | No | Google OAuth client secret |
+| `SMTP_USER` | Production email | Gmail address used to send password-reset messages |
+| `SMTP_PASSWORD` | Production email | Gmail app password |
 
-## Design
+Generate an auth secret with `openssl rand -base64 32`. Google OAuth callbacks use `{NEXTAUTH_URL}/api/auth/callback/google`. When Google credentials are absent, the provider and its UI are disabled automatically.
 
-UI follows the project’s [design-principles.md](design-principles.md): simple, minimal, modern, readability-first.
+## Deploy to Vercel and Neon
+
+1. Import the GitHub repository into a Vercel Hobby project with the Next.js preset.
+2. Use Node.js 20, `npm run build`, and the repository root as the project root.
+3. Provision Neon through the Vercel Marketplace in AWS US West (Oregon).
+4. Connect the Neon production branch to Vercel Production. The native integration injects `DATABASE_URL` and `DATABASE_URL_UNPOOLED`.
+5. Scope `NEXTAUTH_URL`, production `NEXTAUTH_SECRET`, SMTP, and Google OAuth credentials to Production. Use a different auth secret and a sanitized `preview-base` Neon branch for Preview deployments.
+6. Configure Google OAuth with these production callbacks during validation:
+   - `https://celpipwritingpractice.com/api/auth/callback/google`
+   - `https://<vercel-production-url>/api/auth/callback/google`
+7. Deploy and smoke-test the Vercel URL before moving the custom domain.
+
+Vercel functions run in Portland (`pdx1`). The AI evaluation route allows the Hobby-plan maximum of 60 seconds. No database keep-alive cron is required.
+
+For the production data transfer, verification queries, domain cutover, and rollback procedure, follow [docs/vercel-migration.md](docs/vercel-migration.md).
+
+## Checks
+
+```bash
+npm run lint
+npm run build
+npx prisma validate
+```
 
 ## License
 

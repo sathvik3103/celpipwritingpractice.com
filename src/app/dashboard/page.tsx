@@ -26,7 +26,7 @@ export default async function DashboardPage() {
 
   const userId = session.user.id;
   
-  // Use retry logic to handle Railway database cold starts
+  // Retry transient serverless database connection failures.
   const [recentSessions, kpisOverall, kpisContent, kpisVocab, kpisReadability, kpisTask] = await withRetry(() =>
     Promise.all([
       prisma.practiceSession.findMany({

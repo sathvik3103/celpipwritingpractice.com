@@ -58,7 +58,7 @@ export default async function HistoryPage({
     orderBy = { createdAt: "desc" };
   }
 
-  // Use retry logic to handle Railway database cold starts
+  // Retry transient serverless database connection failures.
   const sessions = await withRetry(() =>
     prisma.practiceSession.findMany({
       where,

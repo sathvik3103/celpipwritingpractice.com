@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     }
     const { email, password, name } = parsed.data;
     
-    // Use retry logic to handle Railway database cold starts
+    // Retry transient serverless database connection failures.
     const existing = await withRetry(() =>
       prisma.user.findUnique({ where: { email } })
     );

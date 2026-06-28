@@ -5,6 +5,8 @@ import { prisma, withRetry } from "@/lib/prisma";
 import { evaluateWithGroq, parseScoresFromEvaluation } from "@/lib/evaluate";
 import { z } from "zod";
 
+export const maxDuration = 60;
+
 const bodySchema = z.object({
   taskType: z.union([z.literal(1), z.literal(2)]),
   questionText: z.string().min(1),
@@ -48,7 +50,7 @@ export async function POST(req: Request) {
 
   const parsed = parseScoresFromEvaluation(evaluationRaw);
 
-  // Use retry logic to handle Railway database cold starts
+  // Retry transient serverless database connection failures.
   const sessionRecord = await withRetry(() =>
     prisma.practiceSession.create({
       data: {
