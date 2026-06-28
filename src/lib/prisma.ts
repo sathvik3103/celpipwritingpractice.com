@@ -2,6 +2,16 @@ import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
+const isPostgresUrl = (value: string | undefined) =>
+  value?.startsWith("postgresql://") || value?.startsWith("postgres://");
+
+// Keep the pooled runtime URL as the default. If an environment has a missing
+// or malformed pooled value, fall back to its valid direct URL instead of
+// failing every request during Prisma initialization.
+if (!isPostgresUrl(process.env.DATABASE_URL) && isPostgresUrl(process.env.DATABASE_URL_UNPOOLED)) {
+  process.env.DATABASE_URL = process.env.DATABASE_URL_UNPOOLED;
+}
+
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
