@@ -127,7 +127,7 @@ export async function evaluateWithGroq(taskType: string, question: string, answe
   const prompt = buildEvaluationPrompt(taskType, question, answer);
   const completion = await client.chat.completions.create({
     messages: [{ role: "user", content: prompt }],
-    model: "openai/gpt-oss-20b",
+    model: "openai/gpt-oss-120b",
     reasoning_effort: "medium",
     include_reasoning: false,
     temperature: 0.2,
